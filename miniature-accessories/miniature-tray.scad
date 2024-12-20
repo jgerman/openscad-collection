@@ -1,3 +1,4 @@
+// these should probably all live within the modules
 // x dimension
 base_tray_width = 216;
 
@@ -10,8 +11,6 @@ base_tray_thickness = 5.5;
 wing_width = 5;
 wing_depth = 124;
 
-
-
 module wing () {
   difference() {
     // wing TODO why do I need the + 3 in depth??
@@ -22,32 +21,13 @@ module wing () {
   }
 }
 
-module base_platform () {
+module base_platform() {
   corner_radius = 2;
 
-  module corner () {
-    cylinder(base_tray_thickness, corner_radius, corner_radius, center=true, $fn=50);
-  }
-
-  hull() {
-    cube([base_tray_width, base_tray_depth, base_tray_thickness], center=true);
-
-    translate([(base_tray_width / 2) - (corner_radius / 2),
-
-               (base_tray_depth / 2) - (corner_radius / 2),
-               0]) corner();
-
-    translate([-((base_tray_width / 2) - (corner_radius / 2)),
-               (base_tray_depth / 2) - (corner_radius / 2),
-               0]) corner();
-
-    translate([(base_tray_width / 2) - (corner_radius / 2),
-               -((base_tray_depth / 2) - (corner_radius / 2)),
-               0]) corner();
-
-    translate([-((base_tray_width / 2) - (corner_radius / 2)),
-               -((base_tray_depth / 2) - (corner_radius / 2)),
-               0]) corner();
+  linear_extrude(base_tray_thickness, center=true)
+  minkowski() {
+    square([base_tray_width - corner_radius, base_tray_depth - corner_radius], center=true);
+    circle(corner_radius, center=true);
   }
 }
 
@@ -64,4 +44,14 @@ module base_tray () {
     wing();
 }
 
-base_tray();
+module magnet_sheet_tray (depth_of_hollow, offset_from_edge) {
+
+  difference() {
+    base_tray();
+    translate([0, 0, base_tray_thickness - depth_of_hollow])
+    cube([base_tray_width, base_tray_depth, base_tray_thickness], center=true);
+  }
+}
+
+
+magnet_sheet_tray(1.5, 2);
